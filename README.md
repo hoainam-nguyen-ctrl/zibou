@@ -1,13 +1,24 @@
 # zibou
 
-Minimal Flask application, served with gunicorn and shipped as a Docker image.
+Minimal Flask + [htmx](https://htmx.org) application, served with gunicorn and shipped as a
+Docker image.
 
 ## Endpoints
 
-| Method | Path      | Response                                  |
-|--------|-----------|-------------------------------------------|
-| GET    | `/`       | `{"message": "Hello from zibou!"}`        |
-| GET    | `/health` | `{"status": "ok", "version": "0.1.0"}`    |
+| Method | Path            | Response                                                   |
+|--------|-----------------|------------------------------------------------------------|
+| GET    | `/`             | HTML page with a name field                                |
+| GET    | `/hello?name=…` | HTML fragment `Hello, <name>!`, swapped into the page by htmx |
+| GET    | `/health`       | `{"status": "ok", "version": "0.1.0"}`                     |
+
+## htmx
+
+The page loads htmx from `src/zibou/static/htmx.min.js` (v2.0.11, vendored from the npm
+package after checking its integrity hash) rather than a CDN, so the app has no runtime
+third-party dependency. To upgrade, replace that file and update the version above.
+
+Templates live in `src/zibou/templates/`; files prefixed `_` are fragments returned to htmx
+requests, not full pages.
 
 ## Local development
 
@@ -54,6 +65,9 @@ zibou/
 ├── Dockerfile
 ├── .dockerignore
 ├── pyproject.toml
-├── src/zibou/__init__.py   # create_app() factory
+├── src/zibou/
+│   ├── __init__.py         # create_app() factory and routes
+│   ├── templates/          # index.html page, _greeting.html fragment
+│   └── static/htmx.min.js  # vendored htmx
 └── tests/test_zibou.py
 ```

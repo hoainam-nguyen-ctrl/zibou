@@ -12,7 +12,37 @@ def client():
 def test_index(client) -> None:
     resp = client.get("/")
     assert resp.status_code == 200
-    assert resp.get_json() == {"message": "Hello from zibou!"}
+    assert resp.mimetype == "text/html"
+    assert b'hx-get="/hello"' in resp.data
+    assert b"/static/htmx.min.js" in resp.data
+
+
+def test_htmx_is_served(client) -> None:
+    resp = client.get("/static/htmx.min.js")
+    assert resp.status_code == 200
+    assert b"htmx" in resp.data
+
+
+def test_hello_default(client) -> None:
+    resp = client.get("/hello")
+    assert resp.status_code == 200
+    assert b"Hello, world!" in resp.data
+
+
+def test_hello_name(client) -> None:
+    resp = client.get("/hello", query_string={"name": "  Zibou  "})
+    assert b"Hello, Zibou!" in resp.data
+
+
+def test_hello_escapes_html(client) -> None:
+    resp = client.get("/hello", query_string={"name": "<script>alert(1)</script>"})
+    assert b"<script>" not in resp.data
+    assert b"&lt;script&gt;" in resp.data
+
+
+def test_hello_truncates_name(client) -> None:
+    resp = client.get("/hello", query_string={"name": "x" * 200})
+    assert b"x" * 50 + b"!" in resp.data
 
 
 def test_health(client) -> None:

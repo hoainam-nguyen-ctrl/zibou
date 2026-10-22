@@ -1,8 +1,12 @@
 """Zibou Flask application."""
 
-from flask import Flask, jsonify
+from datetime import datetime
+
+from flask import Flask, jsonify, render_template, request
 
 __version__ = "0.1.0"
+
+MAX_NAME_LENGTH = 50
 
 
 def create_app(config: dict | None = None) -> Flask:
@@ -14,7 +18,13 @@ def create_app(config: dict | None = None) -> Flask:
 
     @app.get("/")
     def index():
-        return jsonify(message="Hello from zibou!")
+        return render_template("index.html")
+
+    @app.get("/hello")
+    def hello():
+        """HTML fragment swapped into the page by htmx."""
+        name = request.args.get("name", "").strip()[:MAX_NAME_LENGTH] or "world"
+        return render_template("_greeting.html", name=name, now=datetime.now())
 
     @app.get("/health")
     def health():

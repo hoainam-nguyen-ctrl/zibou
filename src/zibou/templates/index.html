@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>zibou</title>
+  <script src="{{ url_for('static', filename='htmx.min.js') }}" defer></script>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 32rem; margin: 4rem auto; padding: 0 1rem; }
+    input, button { font: inherit; padding: .4rem .6rem; }
+    #greeting { margin-top: 1.5rem; font-size: 1.5rem; }
+    #greeting small { display: block; font-size: .8rem; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>zibou</h1>
+
+  <!-- htmx: on submit or typing, GET /hello and swap the returned fragment into #greeting -->
+  <form hx-get="/hello" hx-target="#greeting"
+        hx-trigger="submit, input changed delay:300ms from:find input">
+    <input type="text" name="name" placeholder="Your name" maxlength="50" autocomplete="off">
+    <button type="submit">Say hello</button>
+  </form>
+
+  <div id="greeting" hx-get="/hello" hx-trigger="load"></div>
+</body>
+</html>
